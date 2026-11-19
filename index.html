@@ -3,154 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="The Xiao Library is a community library for sprites, sounds, photos, and videos.">
+  <meta name="description" content="The Xiao Library is a community library for creative assets.">
   <title>TXL — The Xiao Library</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#" aria-label="The Xiao Library home">
-      <span class="brand-mark">TXL</span>
-      <span>The Xiao Library</span>
-    </a>
-
+    <a class="brand" href="./" aria-label="The Xiao Library home"><span class="brand-mark">TXL</span><span>The Xiao Library</span></a>
     <nav class="nav-actions" aria-label="Account actions">
       <button class="button button-ghost" id="authButton" type="button">Sign in</button>
-      <button class="button button-profile" id="profileButton" type="button" hidden>
-        <img id="profileButtonAvatar" class="avatar avatar-small" alt="" hidden>
-        <span id="profileButtonName">My profile</span>
-      </button>
-      <button class="button button-primary" id="openUploadButton" type="button">Upload asset</button>
+      <button class="button button-profile" id="profileButton" type="button" hidden><img id="profileButtonAvatar" class="avatar avatar-small" alt="" hidden><span id="profileButtonName">My profile</span></button>
+      <button class="button button-primary" id="openUploadButton" type="button">Upload</button>
     </nav>
   </header>
-
   <main>
     <section class="hero">
-      <p class="eyebrow">A community asset library</p>
-      <h1>TXL</h1>
-      <p class="hero-subtitle">The Xiao Library</p>
-      <p class="hero-copy">Find and share sprites, sounds, photos, videos, and more.</p>
-
-      <label class="search-box" for="searchInput">
-        <span aria-hidden="true">⌕</span>
-        <input id="searchInput" type="search" placeholder="Search assets" autocomplete="off">
-      </label>
+      <p class="eyebrow">A community asset library</p><h1>TXL</h1><p class="hero-subtitle">The Xiao Library</p>
+      <p class="hero-copy">Find, preview, collect, and share creative assets.</p>
+      <label class="search-box" for="searchInput"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Search assets" autocomplete="off"></label>
     </section>
-
     <section class="library" aria-labelledby="libraryHeading">
-      <div class="library-heading">
-        <div>
-          <p class="eyebrow">Explore</p>
-          <h2 id="libraryHeading">Latest assets</h2>
-        </div>
-        <select id="categoryFilter" class="filter" aria-label="Filter assets by category">
-          <option value="all">All categories</option>
-          <option value="sprite">Sprites</option>
-          <option value="sound">Sounds</option>
-          <option value="photo">Photos</option>
-          <option value="video">Videos</option>
-          <option value="other">Other</option>
-        </select>
+      <div id="profileBanner" class="profile-banner" hidden></div>
+      <div class="library-heading"><div><p class="eyebrow" id="sectionEyebrow">Explore</p><h2 id="libraryHeading">Latest assets</h2></div>
+        <div class="controls"><select id="categoryFilter" class="filter" aria-label="Filter by category"><option value="all">All categories</option><option value="sprite">Sprites</option><option value="sound">Sounds</option><option value="photo">Photos</option><option value="video">Videos</option><option value="other">Other</option></select>
+        <select id="sortSelect" class="filter" aria-label="Sort assets"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="title">Title A–Z</option><option value="smallest">Smallest file</option></select></div>
       </div>
-
+      <nav class="tabs" id="libraryTabs" aria-label="Library sections">
+        <button class="tab active" data-view="explore">Explore</button><button class="tab" data-view="favorites">Favorites</button><button class="tab" data-view="uploads">My uploads</button><button class="tab" data-view="collections">Collections</button><button class="tab" id="moderationTab" data-view="moderation" hidden>Moderation</button>
+      </nav>
+      <div id="collectionsPanel" class="collections-panel" hidden></div>
       <div id="assetGrid" class="asset-grid" aria-live="polite"></div>
-      <p id="emptyMessage" class="empty-message" hidden>No assets match that search yet.</p>
+      <p id="emptyMessage" class="empty-message" hidden>No assets here yet.</p>
+      <div class="pagination"><button id="prevPage" class="button button-ghost" type="button">← Previous</button><span id="pageLabel">Page 1</span><button id="nextPage" class="button button-ghost" type="button">Next →</button></div>
+      <p id="appStatus" class="status" role="status"></p>
     </section>
   </main>
 
-  <dialog id="uploadDialog" class="dialog">
-    <form id="uploadForm" class="dialog-content">
-      <div class="dialog-heading">
-        <div>
-          <p class="eyebrow">New asset</p>
-          <h2>Upload to The Xiao Library</h2>
-        </div>
-        <button class="close-button" id="closeUploadButton" type="button" aria-label="Close">×</button>
-      </div>
+  <dialog id="uploadDialog" class="dialog"><form id="uploadForm" class="dialog-content">
+    <div class="dialog-heading"><div><p class="eyebrow">New asset</p><h2>Upload to TXL</h2></div><button class="close-button" data-close="uploadDialog" type="button" aria-label="Close">×</button></div>
+    <label>Title<input name="title" required maxlength="80" placeholder="Forest spirit sprite"></label>
+    <label>Description<textarea name="description" maxlength="500" rows="3" placeholder="What is this asset for?"></textarea></label>
+    <label>Category<select name="category" required><option value="sprite">Sprite</option><option value="sound">Sound</option><option value="photo">Photo</option><option value="video">Video</option><option value="other">Other</option></select></label>
+    <label>File<input name="file" type="file" required></label><p class="form-note">Maximum 25 MB. Executable and script files are not allowed.</p>
+    <p id="uploadStatus" class="status" role="status"></p><button class="button button-primary button-wide" id="submitUploadButton" type="submit">Upload asset</button>
+  </form></dialog>
 
-      <label>
-        Title
-        <input name="title" required maxlength="80" placeholder="Forest spirit sprite">
-      </label>
+  <dialog id="authDialog" class="dialog"><form id="authForm" class="dialog-content">
+    <div class="dialog-heading"><div><p class="eyebrow">Account</p><h2>Sign in</h2></div><button class="close-button" data-close="authDialog" type="button" aria-label="Close">×</button></div>
+    <label>Email address<input name="email" type="email" required placeholder="you@example.com"></label><p class="form-note">We will email you a secure sign-in link. Passwords are not required.</p>
+    <p id="authStatus" class="status" role="status"></p><button class="button button-primary button-wide" type="submit">Email me a sign-in link</button>
+  </form></dialog>
 
-      <label>
-        Description
-        <textarea name="description" maxlength="500" rows="3" placeholder="What is this asset for?"></textarea>
-      </label>
+  <dialog id="profileDialog" class="dialog"><form id="profileForm" class="dialog-content">
+    <div class="dialog-heading"><div><p class="eyebrow">Your account</p><h2>Edit profile</h2></div><button class="close-button" data-close="profileDialog" type="button" aria-label="Close">×</button></div>
+    <div class="avatar-editor"><img id="profilePreview" class="avatar avatar-large" alt="Your profile picture" hidden><div id="profilePlaceholder" class="avatar avatar-large avatar-placeholder">?</div></div>
+    <label>Username<input id="usernameInput" name="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_-]+" autocomplete="username"></label>
+    <label>Profile picture<input id="avatarInput" name="avatar" type="file" accept="image/png,image/jpeg,image/gif,image/webp"></label><p class="form-note">PNG, JPG, GIF, or WebP up to 5 MB.</p>
+    <p id="profileStatus" class="status" role="status"></p><button class="button button-primary button-wide" id="saveProfileButton" type="submit">Save profile</button>
+  </form></dialog>
 
-      <label>
-        Category
-        <select name="category" required>
-          <option value="sprite">Sprite</option>
-          <option value="sound">Sound</option>
-          <option value="photo">Photo</option>
-          <option value="video">Video</option>
-          <option value="other">Other</option>
-        </select>
-      </label>
+  <dialog id="detailDialog" class="dialog detail-dialog"><div class="dialog-content">
+    <div class="dialog-heading"><div><p class="eyebrow">Asset</p><h2 id="detailTitle"></h2></div><button class="close-button" data-close="detailDialog" type="button" aria-label="Close">×</button></div>
+    <div id="detailPreview" class="detail-preview"></div><p id="detailDescription" class="detail-description"></p><div id="detailActions" class="asset-actions"></div>
+    <p id="detailUploader" class="form-note"></p><h3>Comments</h3><div id="commentsList" class="comments-list"></div>
+    <form id="commentForm" class="comment-form"><label for="commentInput">Add a comment</label><textarea id="commentInput" maxlength="1000" required rows="3" placeholder="Write a comment..."></textarea><button class="button button-primary" type="submit">Post comment</button><p id="commentStatus" class="status" role="status"></p></form>
+  </div></dialog>
 
-      <label>
-        File
-        <input name="file" type="file" required>
-      </label>
-
-      <p class="form-note">Images, videos, audio, text, JSON, ZIP, and PNG/GIF sprite files. Maximum 25 MB. Executable files are not allowed.</p>
-      <p id="uploadStatus" class="status" role="status"></p>
-
-      <button class="button button-primary button-wide" id="submitUploadButton" type="submit">Upload asset</button>
-    </form>
-  </dialog>
-
-  <dialog id="authDialog" class="dialog">
-    <form id="authForm" class="dialog-content">
-      <div class="dialog-heading">
-        <div>
-          <p class="eyebrow">Account</p>
-          <h2>Sign in</h2>
-        </div>
-        <button class="close-button" id="closeAuthButton" type="button" aria-label="Close">×</button>
-      </div>
-
-      <label>
-        Email address
-        <input name="email" type="email" required placeholder="you@example.com">
-      </label>
-
-      <p class="form-note">We will email you a secure sign-in link. Passwords are not required.</p>
-      <p id="authStatus" class="status" role="status"></p>
-      <button class="button button-primary button-wide" type="submit">Email me a sign-in link</button>
-    </form>
-  </dialog>
-
-  <dialog id="profileDialog" class="dialog">
-    <form id="profileForm" class="dialog-content">
-      <div class="dialog-heading">
-        <div>
-          <p class="eyebrow">Your account</p>
-          <h2>Edit your profile</h2>
-        </div>
-        <button class="close-button" id="closeProfileButton" type="button" aria-label="Close">×</button>
-      </div>
-
-      <div class="avatar-editor">
-        <img id="profilePreview" class="avatar avatar-large" alt="Your profile picture" hidden>
-        <div id="profilePlaceholder" class="avatar avatar-large avatar-placeholder" aria-hidden="true">?</div>
-      </div>
-
-      <label>
-        Username
-        <input id="usernameInput" name="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_-]+" autocomplete="username" placeholder="YourLibraryName">
-      </label>
-
-      <label>
-        Profile picture
-        <input id="avatarInput" name="avatar" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
-      </label>
-      <p class="form-note">Choose a PNG, JPG, GIF, or WebP image up to 5 MB. Usernames can use letters, numbers, underscores, and hyphens.</p>
-      <p id="profileStatus" class="status" role="status"></p>
-      <button class="button button-primary button-wide" id="saveProfileButton" type="submit">Save profile</button>
-    </form>
-  </dialog>
+  <dialog id="collectionDialog" class="dialog"><form id="collectionForm" class="dialog-content">
+    <div class="dialog-heading"><div><p class="eyebrow">Save for later</p><h2>Collections</h2></div><button class="close-button" data-close="collectionDialog" type="button" aria-label="Close">×</button></div>
+    <label>New collection name<input id="newCollectionName" maxlength="60" placeholder="My inspiration"></label><button class="button button-primary" type="button" id="createCollectionButton">Create collection</button>
+    <div id="collectionChoices" class="collection-choices"></div><p id="collectionStatus" class="status" role="status"></p>
+  </form></dialog>
 
   <script type="module" src="app.js"></script>
 </body>
