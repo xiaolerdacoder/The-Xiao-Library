@@ -1,42 +1,39 @@
-# Xiaoler Asset Library
+# The Xiao Library (TXL)
 
-Xiaoler is a community website for sharing sprites, sounds, photos, videos, and other creative assets.
+TXL is a community website for sharing sprites, sounds, photos, videos, and other creative assets.
 
 ## Preview locally
 
-You do not need to install anything to start editing:
-
-1. Open `index.html` in a browser.
-2. The page will show three example assets.
-3. Upload and sign-in controls need Supabase before they can work.
+1. Open `index.html` in a browser to see the demo library.
+2. The example assets, search, and category filter work without a backend.
+3. Sign-in, profile editing, and uploads need Supabase to be configured first.
 
 For a better local preview, VS Code's **Live Server** extension will refresh the page as you edit.
 
-## GitHub Pages
+## Publish with GitHub Pages
 
 1. Open the repository on GitHub.
 2. Open **Settings** → **Pages**.
 3. Under **Build and deployment**, choose **Deploy from a branch**.
 4. Select `main` and `/ (root)`, then save.
-5. GitHub will give you a public address for the website.
+5. GitHub will display the public site address when publishing finishes.
 
-## Add real uploads with Supabase
+## Set up accounts, profiles, and uploads with Supabase
 
-Supabase provides accounts and file storage. It has a free starter tier, but you should monitor your project's usage in the Supabase dashboard.
+Supabase provides user accounts, a database, and file storage. Monitor usage and set project limits in your Supabase dashboard.
 
-### 1. Create a project
+### 1. Create a Supabase project
 
-1. Create an account at https://supabase.com
-2. Create a new project.
-3. Open **Project Settings** → **API**.
-4. Copy the **Project URL** and **anon public** key.
-5. In `app.js`, replace the empty `SUPABASE_URL` and `SUPABASE_ANON_KEY` values.
+1. Create an account at https://supabase.com and create a project.
+2. Open **Project Settings** → **API**.
+3. Copy the **Project URL** and **anon public** key.
+4. Put them into the `SUPABASE_URL` and `SUPABASE_ANON_KEY` constants near the top of `app.js`.
 
-The anon key is public and is safe to use in a browser. Never put a service-role key in `app.js`.
+The anon key is public and is intended for browser use. Never put a service-role key in website code.
 
-### 2. Create the database table
+### 2. Create the asset and profile tables
 
-Open **SQL Editor** in Supabase and run:
+Open Supabase **SQL Editor** and run:
 
 ```sql
 create table public.assets (
@@ -53,71 +50,69 @@ create table public.assets (
 );
 
 alter table public.assets enable row level security;
+create policy "Anyone can read assets" on public.assets for select using (true);
+create policy "Users can insert their own assets" on public.assets for insert with check (auth.uid() = uploader_id);
+create policy "Users can delete their own assets" on public.assets for delete using (auth.uid() = uploader_id);
 
-create policy "Anyone can read assets"
-on public.assets for select
-using (true);
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  username text not null unique check (char_length(username) between 3 and 24),
+  avatar_url text,
+  created_at timestamptz not null default now()
+);
 
-create policy "Users can insert their own assets"
-on public.assets for insert
-with check (auth.uid() = uploader_id);
-
-create policy "Users can delete their own assets"
-on public.assets for delete
-using (auth.uid() = uploader_id);
+alter table public.profiles enable row level security;
+create policy "Anyone can view profiles" on public.profiles for select using (true);
+create policy "Users can create their own profile" on public.profiles for insert with check (auth.uid() = id);
+create policy "Users can update their own profile" on public.profiles for update using (auth.uid() = id) with check (auth.uid() = id);
 ```
 
-### 3. Create the storage bucket
+### 3. Create storage buckets
 
-Open **Storage**, create a public bucket named `assets`, and apply these policies:
+In **Storage**, create two buckets:
 
-- SELECT: public
-- INSERT: authenticated users
-- UPDATE: uploader only
-- DELETE: uploader only
+- `assets` — public bucket for shared files.
+- `avatars` — public bucket for profile pictures.
 
-Supabase Storage policy SQL can look like:
+A public bucket allows visitors to view/download files. Add these policies in the SQL Editor for uploads and avatar display:
 
 ```sql
-create policy "Anyone can view assets"
+create policy "Anyone can view shared assets"
 on storage.objects for select
 using (bucket_id = 'assets');
 
 create policy "Signed-in users can upload assets"
 on storage.objects for insert
-with check (
-  bucket_id = 'assets'
-  and auth.uid() is not null
-);
+with check (bucket_id = 'assets' and auth.uid() is not null);
 
-create policy "Users can delete their own asset files"
-on storage.objects for delete
-using (
-  bucket_id = 'assets'
+create policy "Anyone can view profile pictures"
+on storage.objects for select
+using (bucket_id = 'avatars');
+
+create policy "Users can upload their own profile pictures"
+on storage.objects for insert
+with check (
+  bucket_id = 'avatars'
   and (storage.foldername(name))[1] = auth.uid()::text
 );
 ```
 
-### 4. Configure sign-in
+The website creates new uniquely named avatar files when a user changes their picture, so an update policy is not needed for this version.
 
-In Supabase open **Authentication** → **URL Configuration** and add:
+### 4. Configure email sign-in
 
-- Your GitHub Pages URL as a **Site URL**
-- `http://localhost:3000/**` if you use a local server
-- Your GitHub Pages URL with `/**` as a redirect URL
-
-The site uses email sign-in links, so visitors do not need to create passwords.
+In Supabase open **Authentication** → **URL Configuration**. Set your GitHub Pages URL as the **Site URL**, and add it as a redirect URL. The site uses email sign-in links, so users do not need passwords.
 
 ## Important safety notes
 
-- The browser checks that a file is under 25 MB and is not executable, but it is not a security boundary.
-- The public bucket should contain only the asset types you support.
-- Add moderation tools before a public launch: reports, blocking, deletion, and review.
+- Browser file checks improve the experience but are not a security boundary. Enforce restrictions and monitor usage in Supabase too.
+- Public buckets are visible to anyone with their file links. Only upload content you intend to share publicly.
+- Add moderation, reporting, blocking, and review tools before a large public launch.
 - Never add secrets or a Supabase service-role key to repository files.
 
-## Files in this project
+## Project files
 
-- `index.html` describes the page and its buttons.
-- `styles.css` controls colors, layout, spacing, and responsive design.
-- `app.js` controls filtering, previews, authentication, uploads, and database requests.
-- `README.md` contains setup instructions.
+- `index.html` contains the page structure and profile form.
+- `styles.css` controls the ocean-blue colors and layout.
+- `app.js` controls search, previews, sign-in, profile editing, and uploads.
+- `README.md` explains setup and deployment.
