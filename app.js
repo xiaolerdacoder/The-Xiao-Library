@@ -1,7 +1,7 @@
 // Xiaoler starts with a demo library when Supabase is not configured.
 // Add the Supabase Project URL and anon public key here to enable accounts/uploads.
 const SUPABASE_URL = "https://vurrpxjvogadkrrmwboi.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_SikXBjP_sMk3TbkStBegUA_MzG7a1eF";
+const SUPABASE_ANON_KEY = "sb_publishable__WzgG2B_nLMa3tg7CbvXNw_1r6NqvL2";
 
 const $ = (selector) => document.querySelector(selector);
 const assetGrid = $("#assetGrid");
