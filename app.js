@@ -103,12 +103,12 @@ async function initialize() {
     supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     await loadAssets();
     const { data } = await supabase.auth.getUser(); currentUser = data.user;
-    $("#authButton").textContent = currentUser ? "Sign out" : "Sign in";
+    updateAuthButton();
     $("#profileButton").hidden = !currentUser;
     if (currentUser) await loadAccountData();
     supabase.auth.onAuthStateChange((_event, session) => {
       currentUser = session?.user || null;
-      $("#authButton").textContent = currentUser ? "Sign out" : "Sign in";
+      updateAuthButton();
       $("#profileButton").hidden = !currentUser;
       if (currentUser) loadAccountData(); else { favoriteIds.clear(); profile = null; collections = []; $("#moderationTab").hidden = true; renderAssets(); }
     });
@@ -118,6 +118,11 @@ async function initialize() {
     console.error("Supabase initialization failed", error);
     showStatus("Supabase could not connect. Check your connection and Supabase setup.", true);
   }
+}
+function updateAuthButton() {
+  const button = $("#authButton");
+  button.textContent = currentUser ? "Sign out" : "Sign in";
+  button.hidden = !!currentUser;
 }
 async function showPublicProfile(id) {
   const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", id).maybeSingle();
