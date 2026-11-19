@@ -24,9 +24,12 @@
     </section>
     <section class="library" aria-labelledby="libraryHeading">
       <div id="profileBanner" class="profile-banner" hidden></div>
-      <div class="library-heading"><div><p class="eyebrow" id="sectionEyebrow">Explore</p><h2 id="libraryHeading">Latest assets</h2></div>
-        <div class="controls"><select id="categoryFilter" class="filter" aria-label="Filter by category"><option value="all">All categories</option><option value="sprite">Sprites</option><option value="sound">Sounds</option><option value="photo">Photos</option><option value="video">Videos</option><option value="other">Other</option></select>
-        <select id="sortSelect" class="filter" aria-label="Sort assets"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="title">Title A–Z</option><option value="smallest">Smallest file</option></select></div>
+      <div class="library-heading">
+        <div><p class="eyebrow" id="sectionEyebrow">Explore</p><h2 id="libraryHeading">Latest assets</h2></div>
+        <div class="controls">
+          <select id="categoryFilter" class="filter" aria-label="Filter by category"><option value="all">All categories</option><option value="sprite">Sprites</option><option value="sound">Sounds</option><option value="photo">Photos</option><option value="video">Videos</option><option value="other">Other</option></select>
+          <select id="sortSelect" class="filter" aria-label="Sort assets"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="title">Title A–Z</option><option value="smallest">Smallest</option></select>
+        </div>
       </div>
       <nav class="tabs" id="libraryTabs" aria-label="Library sections">
         <button class="tab active" data-view="explore">Explore</button><button class="tab" data-view="favorites">Favorites</button><button class="tab" data-view="uploads">My uploads</button><button class="tab" data-view="collections">Collections</button><button class="tab" id="moderationTab" data-view="moderation" hidden>Moderation</button>
@@ -66,7 +69,7 @@
     <div class="dialog-heading"><div><p class="eyebrow">Asset</p><h2 id="detailTitle"></h2></div><button class="close-button" data-close="detailDialog" type="button" aria-label="Close">×</button></div>
     <div id="detailPreview" class="detail-preview"></div><p id="detailDescription" class="detail-description"></p><div id="detailActions" class="asset-actions"></div>
     <p id="detailUploader" class="form-note"></p><h3>Comments</h3><div id="commentsList" class="comments-list"></div>
-    <form id="commentForm" class="comment-form"><label for="commentInput">Add a comment</label><textarea id="commentInput" maxlength="1000" required rows="3" placeholder="Write a comment..."></textarea><button class="button button-primary" type="submit">Post comment</button><p id="commentStatus" class="status" role="status"></p></form>
+    <form id="commentForm" class="comment-form"><label for="commentInput">Add a comment</label><textarea id="commentInput" maxlength="1000" required rows="3" placeholder="Write a comment..."></textarea><p id="commentStatus" class="status"></p><button class="button button-primary" type="submit">Post comment</button></form>
   </div></dialog>
 
   <dialog id="collectionDialog" class="dialog"><form id="collectionForm" class="dialog-content">
@@ -75,6 +78,7 @@
     <div id="collectionChoices" class="collection-choices"></div><p id="collectionStatus" class="status" role="status"></p>
   </form></dialog>
 
+  <script type="module" src="moderation.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
